@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Hub Grid</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="libraries/p5.min.js"></script>
+    <script src="libraries/p5.sound.min.js"></script>
+    <script src="sketch.js" defer></script>
+
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body class="bg-black text-white h-screen w-screen p-8">
+    <!-- Outer grid -->
+    <div
+      class="grid grid-cols-[60%_40%] grid-rows-[auto_1fr] gap-4 max-w-6xl mx-auto h-full"
+    >
+      <!-- Header -->
+      <div
+        class="border border-white p-4 flex items-center justify-left col-span-2"
+      >
+        Title(Pirat fest)
+      </div>
+
+      <!-- LEFT side -->
+      <div class="grid grid-rows-[5fr_1fr] gap-4 h-full overflow-hidden">
+        <!-- GAME BOX -->
+        <div
+          id="game-container"
+          class="border border-white flex items-center justify-center relative overflow-hidden"
+        ></div>
+
+        <!-- Footer info -->
+        <div
+          class="border border-white p-4 flex items-center justify-left text-sm"
+          id="game-footer"
+        >
+          Footer (Info)
+        </div>
+      </div>
+
+      <!-- RIGHT side -->
+      <div class="grid grid-rows-4 gap-0 h-full relative overflow-hidden">
+        <div
+          id="column3"
+          data-part="head"
+          class="relative border border-white overflow-hidden"
+        ></div>
+        <div
+          id="column4"
+          data-part="body"
+          class="relative border border-white overflow-hidden"
+        ></div>
+        <div
+          id="column5"
+          data-part="legs"
+          class="relative border border-white overflow-hidden"
+        ></div>
+        <div
+          id="column7"
+          data-part="feet"
+          class="relative border border-white overflow-hidden"
+        ></div>
+      </div>
+    </div>
+    <script src="maskot_controller.js"></script>
+    <script src="win_screen.js"></script>
+    <script src="sketch.js"></script>
+  </body>
+</html>
