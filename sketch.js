@@ -1,10 +1,18 @@
 let p5Instance;
+let borderOverlayP5 = null;
 let currentGameIndex = 0;
-const gameList = ["game1_arrow", "game2_invaders", "game3_word", "game4_clock"];
+
+const gameList = [
+  "game0_introduction",
+  "game1_arrow",
+  "game2_invaders",
+  "game3_word",
+  "game4_clock",
+];
 
 // 🧑‍💻 Dev toggle — change to true while developing
 const DEV_MODE = true;
-const DEV_START_INDEX = 3; // 0 = game1, 1 = game2, 2 = game3, 3 = game4
+const DEV_START_INDEX = 0; // 0 = introduction, 1 = arrow, 2 = invaders, 3 = word, 4 = clock
 
 // 🗺️ Address pieces (mystery reveal)
 const addressParts = {
@@ -13,6 +21,59 @@ const addressParts = {
   zipcode: { value: "2300", revealed: false },
   time: { value: "22:30", revealed: false },
 };
+
+// -------------------------------
+// 🔲 Border Overlay (p5)
+// -------------------------------
+// function startGameBorderOverlay() {
+//   if (borderOverlayP5) return; // already running
+
+//   borderOverlayP5 = new p5((b) => {
+//     let borderImg;
+
+//     b.preload = () => {
+//       borderImg = b.loadImage("assets/border/b1.png");
+//     };
+
+//     b.setup = () => {
+//       const container = document.getElementById("game-container");
+//       const cnv = b.createCanvas(container.clientWidth, container.clientHeight);
+//       cnv.parent("game-container");
+
+//       cnv.elt.dataset.border = "true";
+
+//       // make overlay float over the game canvas but not block mouse
+//       cnv.elt.style.position = "absolute";
+//       cnv.elt.style.inset = "0";
+//       cnv.elt.style.pointerEvents = "none";
+//       cnv.elt.style.zIndex = "50";
+
+//       b.clear();
+//       b.noLoop();
+//       if (borderImg) b.image(borderImg, 0, 0, b.width, b.height);
+//     };
+
+//     b.draw = () => {
+//       b.clear();
+//       if (borderImg) b.image(borderImg, 0, 0, b.width, b.height);
+//     };
+
+//     b.windowResized = () => {
+//       const container = document.getElementById("game-container");
+//       b.resizeCanvas(container.clientWidth, container.clientHeight);
+//       b.redraw();
+//     };
+//   });
+// }
+
+// function stopGameBorderOverlay() {
+//   if (borderOverlayP5) {
+//     try {
+//       borderOverlayP5.remove();
+//     } catch (_) {}
+//     borderOverlayP5 = null;
+//   }
+// }
 
 // -------------------------------
 // 🟩 Start Screen
@@ -68,7 +129,12 @@ function loadGame(fileName) {
   p5Instance = null;
 
   const container = document.getElementById("game-container");
-  container.innerHTML = "";
+
+  // 🛠️ Only remove the game canvas — not the overlay border
+  const existingCanvas = container.querySelector(
+    "canvas:not([data-border='true'])"
+  );
+  if (existingCanvas) existingCanvas.remove();
 
   const oldScript = document.getElementById("game-script");
   if (oldScript) oldScript.remove();
@@ -88,6 +154,9 @@ function loadGame(fileName) {
       if (typeof p5Instance.handleResize === "function") {
         p5Instance.handleResize();
       }
+
+      // ✅ Ensure border overlay exists — if not, create it
+      if (!borderOverlayP5) startGameBorderOverlay();
     } else {
       console.warn("Game loaded, but no p5 instance was assigned.");
     }
@@ -118,11 +187,20 @@ window.addEventListener("resize", () => {
 // 🟥 Handle Game Completion
 // -------------------------------
 function gameCompleted() {
-  lockMaskotPart(currentGameIndex);
-
   const currentGame = gameList[currentGameIndex];
 
-  // Reveal the relevant part immediately
+  // 🧭 Skip locking for intro — just move on
+  if (currentGame === "game0_introduction") {
+    currentGameIndex++;
+    loadGame(gameList[currentGameIndex]);
+    renderFooter();
+    return;
+  }
+
+  // ✅ Lock mascot part based on completed game
+  lockMaskotPart(currentGameIndex);
+
+  // ✅ Reveal corresponding address part
   switch (currentGame) {
     case "game1_arrow":
       addressParts.number.revealed = true;
@@ -138,20 +216,28 @@ function gameCompleted() {
       break;
   }
 
-  renderFooter(); // update the footer right away
+  renderFooter(); // update the footer immediately
 
-  // Move to next game automatically
+  // 🧭 Move to next game afterward
   currentGameIndex++;
-  if (currentGameIndex < gameList.length) {
+
+  if (currentGameIndex < gameList.length - 1) {
+    // ✅ Still has another playable game left
+    loadGame(gameList[currentGameIndex]);
+  } else if (currentGameIndex === gameList.length - 1) {
+    // ✅ Load the final game (game4_clock)
     loadGame(gameList[currentGameIndex]);
   } else {
-    // 🎉 All games complete — show final winning screen
-    showWinningPage({
-      addressParts,
-      title: "PIRATFEST 2025",
-    });
+    // 🎉 All games complete — show overlay win screen
+    stopGameBorderOverlay();
+    if (typeof showWinOverlay === "function") {
+      showWinOverlay(addressParts, window.maskotState);
+    } else {
+      alert("All done! (no overlay available)");
+      window.location.reload();
+    }
   }
-};   // 👈 this closes your p5 instance properly
+}
 
 // -------------------------------
 // 🧾 Render Footer Information
@@ -160,7 +246,6 @@ function renderFooter() {
   const footer = document.getElementById("game-footer");
   if (!footer) return;
 
-  // Combine all address parts into one line
   const addressLine = `${
     addressParts.street.revealed
       ? addressParts.street.value
@@ -179,21 +264,23 @@ function renderFooter() {
       : "?".repeat(addressParts.time.value.length)
   }`;
 
-  footer.innerHTML = `
-    <div style="
-      text-align: center;
-      color: white;
-      font-family: monospace;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      width: 100%;
-      font-size: clamp(12px, 2vw, 22px);
-      letter-spacing: 2px;
-    ">
-      ${addressLine}
-    </div>
-  `;
+  // Keep existing elements (like the <img> border) and just update text
+  let textDiv = footer.querySelector(".footer-text");
+  if (!textDiv) {
+    textDiv = document.createElement("div");
+    textDiv.className = "footer-text";
+    textDiv.style.textAlign = "center";
+    textDiv.style.color = "white";
+    textDiv.style.fontFamily = "monospace";
+    textDiv.style.whiteSpace = "nowrap";
+    textDiv.style.overflow = "hidden";
+    textDiv.style.textOverflow = "ellipsis";
+    textDiv.style.width = "100%";
+    textDiv.style.fontSize = "clamp(12px, 2vw, 22px)";
+    textDiv.style.letterSpacing = "2px";
+    footer.appendChild(textDiv);
+  }
+  textDiv.textContent = addressLine;
 }
 
 // -------------------------------

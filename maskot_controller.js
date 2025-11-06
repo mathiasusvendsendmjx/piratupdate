@@ -2,10 +2,11 @@
 const maskotColumns = ["column3", "column4", "column5", "column7"];
 const maskotImages = Array.from(
   { length: 9 },
-  (_, i) => `assets/maskot/${i}.jpeg`
+  (_, i) => `assets/maskot/${i}.png`
 );
 
 let currentIndexes = { head: 0, body: 0, legs: 0, feet: 0 };
+let lockedIndexes = { head: null, body: null, legs: null, feet: null };
 let animationData = {};
 
 // 🧭 Predefined staggered start indexes (so they don’t align)
@@ -16,7 +17,18 @@ const startOffsets = {
   feet: 0,
 };
 
+// 🧩 Correct mapping (accounts for intro = 0)
+const partMap = {
+  1: "feet", // after game1_arrow
+  2: "legs", // after game2_invaders
+  3: "body", // after game3_word
+  4: "head", // after game4_clock
+};
+
 function initMaskots() {
+  // Prevent multiple setups
+  if (Object.keys(animationData).length > 0) return;
+
   maskotColumns.forEach((colId) => {
     const column = document.getElementById(colId);
     if (!column) return;
@@ -56,7 +68,6 @@ function initMaskots() {
     // Duplicate first image for seamless looping
     const clone = strip.firstElementChild.cloneNode(true);
     strip.appendChild(clone);
-
     column.appendChild(strip);
 
     // --- Start each part at its own offset ---
@@ -65,59 +76,107 @@ function initMaskots() {
     currentIndexes[part] = index;
     strip.style.transform = `translateX(-${index * 100}%)`;
 
-    // --- Random delay for natural desync ---
+    // --- Continuous motion ---
     const minDelay = 2000;
     const maxDelay = 3000;
     const intervalDelay = Math.random() * (maxDelay - minDelay) + minDelay;
 
-    // --- Continuous motion ---
     let isLocked = false;
+    const timer = setInterval(() => {
+      if (isLocked) return;
+
+      index++;
+      currentIndexes[part] = index % maskotImages.length;
+      strip.style.transition = "transform 0.7s ease-in-out";
+      strip.style.transform = `translateX(-${index * 100}%)`;
+
+      // Wraparound
+      if (index === maskotImages.length) {
+        setTimeout(() => {
+          strip.style.transition = "none";
+          strip.style.transform = "translateX(0%)";
+          index = 0;
+        }, 700);
+      }
+    }, intervalDelay);
+
     animationData[part] = {
       strip,
-      timer: setInterval(() => {
-        if (isLocked) return;
-
-        index++;
-        currentIndexes[part] = index % maskotImages.length;
-        strip.style.transition = "transform 0.7s ease-in-out";
-        strip.style.transform = `translateX(-${index * 100}%)`;
-
-        // When reaching clone (end)
-        if (index === maskotImages.length) {
-          setTimeout(() => {
-            strip.style.transition = "none";
-            strip.style.transform = "translateX(0%)";
-            index = 0;
-          }, 700);
-        }
-      }, intervalDelay),
+      timer,
       lock() {
         isLocked = true;
-        clearInterval(this.timer);
+        clearInterval(timer);
       },
     };
   });
 }
 
-// 🧩 Lock part when game finishes
-function lockMaskotPart(gameIndex) {
-  const partMap = ["feet", "legs", "body", "head"];
-  const part = partMap[gameIndex];
-  if (!part) return;
+function addOuterMaskotBorder() {
+  const container = document.querySelector(
+    "#column3, #column4, #column5, #column7"
+  )?.parentElement;
+  if (!container) return;
 
-  const data = animationData[part];
-  if (data) {
-    data.lock();
-    console.log(`🔒 Locked ${part} at index ${currentIndexes[part]}`);
-  }
+  const overlay = document.createElement("img");
+  overlay.src = "assets/border/b0.png";
+  overlay.classList.add(
+    "absolute",
+    "top-0",
+    "left-0",
+    "w-full",
+    "h-full",
+    "pointer-events-none",
+    "z-50"
+  );
+  container.appendChild(overlay);
 }
 
-window.addEventListener("load", initMaskots);
+function lockMaskotPart(gameIndex) {
+  const part = partMap[gameIndex];
+  if (!part) {
+    console.warn(`No mascot part mapped for game index ${gameIndex}`);
+    return;
+  }
 
-// Expose current maskot state for win-screen.js
+  const data = animationData[part];
+  if (!data) {
+    console.warn(`No animation data for part: ${part}`);
+    return;
+  }
+
+  // 🧱 Stop animation loop
+  data.lock();
+
+  // 🧩 Save locked index
+  lockedIndexes[part] = currentIndexes[part];
+
+  // 🧠 Force stop all CSS transitions before applying transform
+  data.strip.style.transition = "none";
+
+  // 🔧 Apply the exact transform for the frozen frame
+  const offset = currentIndexes[part] * 100;
+  data.strip.style.transform = `translateX(-${offset}%)`;
+
+  // 🕑 Force browser to repaint the new style
+  data.strip.offsetHeight; // triggers reflow — ensures instant visual update
+
+  // ✅ Restore a 'frozen' appearance (no animation)
+  data.strip.style.willChange = "auto";
+  data.strip.style.transition = "none";
+
+  console.log(`🔒 Locked ${part} visually at index ${currentIndexes[part]}`);
+}
+
+
+window.addEventListener("load", () => {
+  initMaskots();
+  //addOuterMaskotBorder();
+});
+
+// Expose mascot state
 window.maskotState = {
   getIndex(part) {
-    return currentIndexes?.[part] ?? 0;
+    return lockedIndexes?.[part] ?? currentIndexes?.[part] ?? 0;
   },
   getSrc(i) {
     return maskotImages[i];
@@ -129,5 +188,3 @@ window.maskotState = {
     });
   },
 };
-
-

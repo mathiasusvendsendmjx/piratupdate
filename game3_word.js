@@ -32,8 +32,17 @@ window.p5Instance = new p5((s) => {
     startCell = null;
     currentCell = null;
 
-    const dim = Math.min(s.width, s.height) * 0.9;
-    cellSize = dim / GRID_SIZE;
+    // 🧩 Easy scaling controls:
+    const widthScale = 0.95; // make grid fill more horizontally
+    const heightScale = 0.8; // make grid slightly smaller vertically
+
+    // 🧮 Calculate separate dimensions
+    const gridWidth = s.width * widthScale;
+    const gridHeight = s.height * heightScale;
+
+    // Use smaller dimension to determine square cell size
+    cellSize = Math.min(gridWidth / GRID_SIZE, gridHeight / GRID_SIZE);
+
     s.textSize(cellSize * 0.7);
 
     grid = [];
@@ -53,6 +62,7 @@ window.p5Instance = new p5((s) => {
     }
   }
 
+
   // --- Draw Loop ---
   s.draw = () => {
     s.background(0);
@@ -71,13 +81,13 @@ window.p5Instance = new p5((s) => {
   function drawStartScreen() {
     s.background(0);
     s.fill(255);
-    s.textSize(s.width / 20);
-    s.text("Click to Start Game", s.width / 2, s.height / 2 - 40);
+    s.textSize(s.width / 30);
+    s.text("Click to Start Game", s.width / 2, s.height / 2 +20);
     s.textSize(s.width / 40);
     s.text(
       "Find the hidden word by dragging across the letters!",
       s.width / 2,
-      s.height / 2 + 20
+      s.height / 2 -20
     );
   }
 
@@ -128,8 +138,6 @@ function drawWinScreen() {
   s.background(0);
   s.noStroke(); // 🧼 removes any outlines
   s.fill(255);
-  s.textSize(s.width / 15);
-  s.text("You Found It!", s.width / 2, s.height / 2 - 60);
   s.textSize(s.width / 20);
   s.text(TARGET_WORD, s.width / 2, s.height / 2 - 10);
   s.textSize(s.width / 40);

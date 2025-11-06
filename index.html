@@ -8,7 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="libraries/p5.min.js"></script>
     <script src="libraries/p5.sound.min.js"></script>
-    <script src="sketch.js" defer></script>
 
     <style>
       html,
@@ -17,65 +16,143 @@
         padding: 0;
         height: 100%;
         overflow: hidden;
+        background: black;
+        color: white;
       }
     </style>
   </head>
 
-  <body class="bg-black text-white h-screen w-screen p-8">
-    <!-- Outer grid -->
-    <div
-      class="grid grid-cols-[60%_40%] grid-rows-[auto_1fr] gap-4 max-w-6xl mx-auto h-full"
-    >
-      <!-- Header -->
-      <div
-        class="border border-white p-4 flex items-center justify-left col-span-2"
-      >
-        Title(Pirat fest)
-      </div>
-
-      <!-- LEFT side -->
-      <div class="grid grid-rows-[5fr_1fr] gap-4 h-full overflow-hidden">
-        <!-- GAME BOX -->
+  <body
+    class="flex items-center justify-center min-h-screen bg-black text-white"
+  >
+    <!-- Centered site container -->
+    <div class="w-[90vw] h-[90vh] max-w-5xl flex flex-col justify-center">
+      <!-- 🎮 Outer grid for game -->
+      <div class="grid grid-cols-[60%_40%] grid-rows-[auto_1fr] gap-4 h-full">
+        <!-- Header -->
         <div
-          id="game-container"
-          class="border border-white flex items-center justify-center relative overflow-hidden"
-        ></div>
-
-        <!-- Footer info -->
-        <div
-          class="border border-white p-4 flex items-center justify-left text-sm"
-          id="game-footer"
+          class="p-4 flex items-center justify-center text-lg tracking-wide font-semibold col-span-2"
         >
-          Footer (Info)
+          PIRATFEST 2025
+        </div>
+
+        <!-- LEFT side -->
+        <div
+          class="grid grid-rows-[5fr_1fr] gap-4 h-full overflow-hidden relative"
+        >
+          <!-- 🎮 Game container -->
+          <div
+            id="game-container"
+            class="relative flex items-center justify-center overflow-hidden"
+          >
+            <!-- 🖼️ Game border overlay -->
+            <img
+              id="game-border"
+              src="assets/border/b3.png"
+              alt="Game border"
+              class="absolute top-0 left-0 w-full h-full pointer-events-none z-10"
+            />
+
+            <img
+              id="game-border"
+              src="assets/border/b0.png"
+              alt="Game border"
+              class="absolute top-1/2 left-1/2 w-[150%] h-[120%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20"
+            />
+          </div>
+
+          <!-- 🧩 Footer info with its own border -->
+          <div
+            id="game-footer"
+            class="relative flex items-center justify-center text-sm overflow-hidden"
+          >
+            <img
+              id="footer-border"
+              src="assets/border/b9.png"
+              alt="Footer border"
+              class="absolute top-0 left-0 w-full h-full pointer-events-none z-10"
+            />
+            <img
+              id="footer-border"
+              src="assets/border/b2.png"
+              alt="Footer border"
+              class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20"
+            />
+          </div>
+        </div>
+
+        <!-- RIGHT side (maskot area) -->
+        <div id="maskot-area" class="relative overflow-hidden">
+          <!-- 🖼️ Outer maskot border -->
+          <img
+            id="maskot-border"
+            src="assets/border/b8.png"
+            alt="Outer maskot border"
+            class="absolute top-0 left-0 w-full h-full pointer-events-none z-10"
+          />
+          <img
+            id="maskot-border"
+            src="assets/border/b1.png"
+            alt="Outer maskot border"
+            class="absolute top-1/2 left-1/2 w-full h-[110%] -translate-x-1/2 -translate-y-1/2 pointer-events-none z-20"
+          />
+
+          <!-- Maskot grid inside -->
+          <div
+            class="grid grid-rows-4 gap-0 h-[80%] w-[90%] justify-self-center justyfy-center mt-[20%]"
+          >
+            <div
+              id="column3"
+              data-part="head"
+              class="relative overflow-hidden"
+            ></div>
+            <div
+              id="column4"
+              data-part="body"
+              class="relative overflow-hidden"
+            ></div>
+            <div
+              id="column5"
+              data-part="legs"
+              class="relative overflow-hidden"
+            ></div>
+            <div
+              id="column7"
+              data-part="feet"
+              class="relative overflow-hidden"
+            ></div>
+          </div>
         </div>
       </div>
-
-      <!-- RIGHT side -->
-      <div class="grid grid-rows-4 gap-0 h-full relative overflow-hidden">
-        <div
-          id="column3"
-          data-part="head"
-          class="relative border border-white overflow-hidden"
-        ></div>
-        <div
-          id="column4"
-          data-part="body"
-          class="relative border border-white overflow-hidden"
-        ></div>
-        <div
-          id="column5"
-          data-part="legs"
-          class="relative border border-white overflow-hidden"
-        ></div>
-        <div
-          id="column7"
-          data-part="feet"
-          class="relative border border-white overflow-hidden"
-        ></div>
-      </div>
     </div>
-    <script src="maskot_controller.js"></script>
+
+    <!-- 🏴‍☠️ WIN OVERLAY -->
+    <div
+      id="win-overlay"
+      class="hidden fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black text-white p-6"
+    >
+      <h1
+        id="win-overlay-title"
+        class="text-2xl md:text-4xl font-bold mb-6 tracking-wide text-center"
+      >
+        PIRATFEST 2025
+      </h1>
+
+      <div
+        id="win-overlay-maskot"
+        class="relative w-56 md:w-64 h-[22rem] md:h-[26rem] overflow-hidden rounded mb-8 border border-white"
+      ></div>
+
+      <div
+        id="win-overlay-footer"
+        class="text-center font-mono"
+        style="font-size: clamp(12px, 2vw, 22px); letter-spacing: 2px"
+      ></div>
+    </div>
+
+    <!-- Scripts -->
     <script src="win_screen.js"></script>
+    <script src="maskot_controller.js"></script>
     <script src="sketch.js"></script>
   </body>
 </html>

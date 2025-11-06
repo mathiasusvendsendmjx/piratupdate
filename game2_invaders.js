@@ -1,4 +1,9 @@
 window.p5Instance = new p5((sketch) => {
+  // 🎚️ Nemme tweaks øverst
+  const HERO_SIZE = 90; // pixel størrelse på hero (ændr frit)
+  const MONSTER_SIZE = 60; // grundstørrelse på monstre
+  const MONSTER_SCALE = [1, 1.2, 1.5]; // skalering pr. runde (1 = normal, 1.5 = større)
+
   let player,
     invaders = [],
     lasers = [];
@@ -9,6 +14,17 @@ window.p5Instance = new p5((sketch) => {
     invaderSpeed = 1,
     invaderDrop = 20;
   const WINNING_SCORE = 2300;
+
+  // 🧩 Billeder
+  let monsterImgs = [];
+  let heroImg;
+
+  sketch.preload = () => {
+    monsterImgs[1] = sketch.loadImage("assets/invaders/monster1.png");
+    monsterImgs[2] = sketch.loadImage("assets/invaders/monster2.png");
+    monsterImgs[3] = sketch.loadImage("assets/invaders/monster3.png");
+    heroImg = sketch.loadImage("assets/invaders/hero.png");
+  };
 
   sketch.setup = () => {
     const container = document.getElementById("game-container");
@@ -30,6 +46,7 @@ window.p5Instance = new p5((sketch) => {
     else if (gameState === "WIN") showWinScreen();
   };
 
+  // 🧨 Kollision
   function invaderHitsPlayer(inv) {
     return (
       inv.x - inv.w / 2 < player.x + player.w / 2 &&
@@ -39,19 +56,17 @@ window.p5Instance = new p5((sketch) => {
     );
   }
 
-
+  // 🎮 Hovedloop
   function runGame() {
     player.draw();
     player.move();
 
-    // Lasers
     for (let i = lasers.length - 1; i >= 0; i--) {
       lasers[i].update();
       lasers[i].draw();
       if (lasers[i].isOffscreen()) lasers.splice(i, 1);
     }
 
-    // Invaders
     let edge = false;
     for (const inv of invaders) {
       inv.update();
@@ -73,9 +88,7 @@ window.p5Instance = new p5((sketch) => {
 
     for (const inv of invaders) {
       if (gameState !== "PLAYING") break;
-      if (inv.type !== 3 && invaderHitsPlayer(inv)) {
-        gameState = "GAME_OVER";
-      }
+      if (inv.type !== 3 && invaderHitsPlayer(inv)) gameState = "GAME_OVER";
     }
 
     checkCollisions();
@@ -108,12 +121,14 @@ window.p5Instance = new p5((sketch) => {
     }
   }
 
+  // 👾 Runder
   function setupRound(round) {
     invaders = [];
     lasers = [];
     invaderDirection = 1;
+
     let rows, cols, points;
-    const size = 40;
+    const size = MONSTER_SIZE * MONSTER_SCALE[round - 1];
 
     if (round === 1) {
       rows = 3;
@@ -129,7 +144,7 @@ window.p5Instance = new p5((sketch) => {
       rows = 2;
       cols = 4;
       points = 100;
-      invaderSpeed = 1.6;
+      invaderSpeed = 1.3;
     }
 
     const spacing = Math.min(size * 1.5, (sketch.width * 0.85) / cols);
@@ -145,17 +160,25 @@ window.p5Instance = new p5((sketch) => {
       }
   }
 
+  // 🧍‍♂️ HERO
   class Player {
     constructor() {
-      this.w = 50;
-      this.h = 20;
+      this.w = HERO_SIZE;
+      this.h = HERO_SIZE * 0.6;
       this.x = sketch.width / 2;
-      this.y = sketch.height - 40;
+      this.y = sketch.height - HERO_SIZE;
       this.speed = 8;
     }
+
     draw() {
-      drawPlayer(this.x, this.y, this.w, this.h);
+      if (heroImg) {
+        sketch.imageMode(sketch.CENTER);
+        sketch.image(heroImg, this.x, this.y, this.w, this.h);
+      } else {
+        drawPlayer(this.x, this.y, this.w, this.h);
+      }
     }
+
     move() {
       if (sketch.keyIsDown(sketch.LEFT_ARROW) && this.x > this.w / 2)
         this.x -= this.speed;
@@ -165,11 +188,13 @@ window.p5Instance = new p5((sketch) => {
       )
         this.x += this.speed;
     }
+
     shoot() {
       lasers.push(new Laser(this.x, this.y - this.h));
     }
   }
 
+  // 🔫 Laser
   class Laser {
     constructor(x, y) {
       this.x = x;
@@ -197,6 +222,7 @@ window.p5Instance = new p5((sketch) => {
     }
   }
 
+  // 👾 Invader
   class Invader {
     constructor(x, y, size, points, type) {
       this.x = x;
@@ -215,70 +241,63 @@ window.p5Instance = new p5((sketch) => {
       const spd =
         invaderSpeed +
         (1 - invaders.length / (invaders.length + 10)) * invaderSpeed;
-
-      if (this.type === 1) {
-        this.x += invaderDirection * spd;
-      } else if (this.type === 2) {
+      if (this.type === 1) this.x += invaderDirection * spd;
+      else if (this.type === 2) {
         this.x += invaderDirection * spd;
         this.y =
           this.originalY +
           Math.sin(sketch.frameCount * 0.05 + this.x * 0.02) * 20;
       } else {
-        // --- Type 3 (Diving round) ---
         if (this.isDiving) {
-          // Homing dive toward player
           this.x = sketch.lerp(this.x, player.x, 0.03);
           this.y += this.diveSpeed;
-
-          // Check for player collision
           if (
             this.y + this.h / 2 > player.y - player.h / 2 &&
             Math.abs(this.x - player.x) < (player.w + this.w) / 2
-          ) {
+          )
             gameState = "GAME_OVER";
-          }
-
-          // Reset to top if missed
           if (this.y > sketch.height + this.h) {
             this.y = -this.h;
             this.x = sketch.random(sketch.width * 0.2, sketch.width * 0.8);
             this.isDiving = false;
           }
         } else {
-          // Normal horizontal motion
           this.x += invaderDirection * spd;
-
-          // Random chance to dive
-          if (sketch.random(1) < this.diveChance) {
-            this.isDiving = true;
-          }
+          if (sketch.random(1) < this.diveChance) this.isDiving = true;
         }
       }
     }
 
     draw() {
-      drawInvader(this.x, this.y, this.w, this.type);
+      if (monsterImgs[this.type]) {
+        sketch.imageMode(sketch.CENTER);
+        sketch.image(monsterImgs[this.type], this.x, this.y, this.w, this.h);
+      } else {
+        drawInvader(this.x, this.y, this.w);
+      }
     }
   }
 
+  // 🎨 Tegn hjælper
   function drawPlayer(x, y, w, h) {
     sketch.fill(255);
     sketch.triangle(x, y - h / 2, x - w / 2, y + h / 2, x + w / 2, y + h / 2);
   }
+
   function drawLaser(x, y, w, h) {
-    sketch.fill(255);
+    sketch.fill("#E933C9");
     sketch.rectMode(sketch.CENTER);
     sketch.rect(x, y, w, h);
   }
-  function drawInvader(x, y, s, t) {
+
+  function drawInvader(x, y, s) {
     sketch.noStroke();
     sketch.fill(255);
     sketch.rectMode(sketch.CENTER);
     sketch.rect(x, y, s, s * 0.7);
-    sketch.rect(x - s / 3, y + s * 0.2, s * 0.2, s * 0.4);
-    sketch.rect(x + s / 3, y + s * 0.2, s * 0.2, s * 0.4);
   }
 
+  // 🎮 Input
   sketch.mousePressed = () => {
     if (gameState === "START" || gameState === "GAME_OVER") {
       score = 0;
@@ -291,9 +310,7 @@ window.p5Instance = new p5((sketch) => {
   };
 
   sketch.keyPressed = () => {
-    if (gameState === "PLAYING" && sketch.key === " ") {
-      player.shoot();
-    }
+    if (gameState === "PLAYING" && sketch.key === " ") player.shoot();
   };
 
   function drawUI() {
@@ -305,7 +322,11 @@ window.p5Instance = new p5((sketch) => {
   function showStartScreen() {
     sketch.fill(255);
     sketch.textSize(32);
-    sketch.text("Click to Start Game", sketch.width / 2, sketch.height / 2 - 20);
+    sketch.text(
+      "Click to Start Game",
+      sketch.width / 2,
+      sketch.height / 2 - 20
+    );
     sketch.textSize(20);
     sketch.text(
       "Move: ← → | Shoot: SPACE",
@@ -335,7 +356,7 @@ window.p5Instance = new p5((sketch) => {
     sketch.resizeCanvas(container.clientWidth, container.clientHeight);
     if (player) {
       player.x = sketch.width / 2;
-      player.y = sketch.height - 40;
+      player.y = sketch.height - HERO_SIZE;
     }
   };
 });

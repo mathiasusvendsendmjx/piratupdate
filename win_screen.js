@@ -1,125 +1,123 @@
-// win-screen.js
+// win_screen.js — clone real locked mascot from game phase (with double borders)
 (function () {
-  // Build the final address line
-  function buildAddressLine(addressParts) {
-    const mask = (value, revealed) =>
-      revealed ? value : "?".repeat(String(value).length);
+  // 🧩 Clone the actual locked mascot columns before hiding them
+  function renderMaskotInto(targetEl) {
+    targetEl.innerHTML = "";
 
-    const street = mask(
-      addressParts.street.value,
-      addressParts.street.revealed
-    );
-    const number = mask(
-      addressParts.number.value,
-      addressParts.number.revealed
-    );
-    const zipcode = mask(
-      addressParts.zipcode.value,
-      addressParts.zipcode.revealed
-    );
-    const time = mask(addressParts.time.value, addressParts.time.revealed);
-
-    return `${street} ${number}, ${zipcode} — ${time}`;
-  }
-
-  // Compose final mascot centered
-  function renderCompositeMascot(containerEl, indices) {
-    // indices: { headIdx, bodyIdx, legsIdx, feetIdx }
-    const partRows = [
-      { src: window.maskotState.getSrc(indices.headIdx), pos: "top" },
-      { src: window.maskotState.getSrc(indices.bodyIdx), pos: "33%" },
-      { src: window.maskotState.getSrc(indices.legsIdx), pos: "66%" },
-      { src: window.maskotState.getSrc(indices.feetIdx), pos: "bottom" },
-    ];
-
-    // Wrapper: center mascot in full space
-    const wrapper = document.createElement("div");
-    wrapper.className =
-      "flex flex-col items-center justify-center w-full h-full text-center gap-8";
-
-    // Mascot frame
+    const parts = ["head", "body", "legs", "feet"];
     const frame = document.createElement("div");
-    frame.className =
-      "relative border border-white w-56 md:w-72 h-[30rem] md:h-[38rem] overflow-hidden rounded";
-    wrapper.appendChild(frame);
+    frame.style.width = "100%";
+    frame.style.height = "100%";
+    frame.style.display = "flex";
+    frame.style.flexDirection = "column";
+    frame.style.overflow = "hidden";
+    frame.style.position = "relative"; // Needed for border layering
 
-    // 4 stacked cropped image rows
-    const rows = document.createElement("div");
-    rows.className = "absolute inset-0 flex flex-col";
-    frame.appendChild(rows);
-
-    partRows.forEach(({ src, pos }) => {
-      const row = document.createElement("div");
-      row.className = "flex-1 overflow-hidden relative bg-black";
+    // 🎭 Render mascot parts
+    parts.forEach((part) => {
+      const idx = window.maskotState?.getIndex(part) ?? 0;
       const img = document.createElement("img");
-      img.src = src;
-      img.className = "absolute w-full h-full object-cover";
-      img.style.objectPosition = `center ${pos}`;
-      row.appendChild(img);
-      rows.appendChild(row);
+      img.src = `assets/maskot/${idx}.png`; // use .jpeg to match your asset set
+      img.style.width = "100%";
+      img.style.height = "25%";
+      img.style.objectFit = "cover";
+
+      if (part === "head") img.style.objectPosition = "center top";
+      else if (part === "body") img.style.objectPosition = "center 33%";
+      else if (part === "legs") img.style.objectPosition = "center 66%";
+      else if (part === "feet") img.style.objectPosition = "center bottom";
+
+      frame.appendChild(img);
     });
 
-    // Render into container
-    containerEl.innerHTML = "";
-    containerEl.className =
-      "flex flex-col items-center justify-center w-full h-full text-center";
-    containerEl.appendChild(wrapper);
+    // 🖼️ Add double borders (same as in-game layout)
+    const outerBorder = document.createElement("img");
+    outerBorder.src = "assets/border/b8.png";
+    outerBorder.alt = "Outer maskot border";
+    outerBorder.classList.add(
+      "absolute",
+      "top-0",
+      "left-0",
+      "w-full",
+      "h-full",
+      "pointer-events-none",
+      "z-10"
+    );
+
+    const innerBorder = document.createElement("img");
+    innerBorder.src = "assets/border/b1.png";
+    innerBorder.alt = "Inner maskot border";
+    innerBorder.classList.add(
+      "absolute",
+      "top-1/2",
+      "left-1/2",
+      "w-full",
+      "h-[110%]",
+      "-translate-x-1/2",
+      "-translate-y-1/2",
+      "pointer-events-none",
+      "z-20"
+    );
+
+    frame.appendChild(outerBorder);
+    frame.appendChild(innerBorder);
+
+    targetEl.appendChild(frame);
   }
 
-  // Public function to show the win page
-  window.showWinningPage = function showWinningPage({ addressParts, title }) {
+  // 🏴‍☠️ Show win overlay — now clones before hiding
+  window.showWinOverlay = function showWinOverlay(addressParts = {}) {
     try {
-      // Stop maskot animations
-      if (window.maskotState?.lockAll) window.maskotState.lockAll();
+      const overlay = document.getElementById("win-overlay");
+      const titleEl = document.getElementById("win-overlay-title");
+      const maskotEl = document.getElementById("win-overlay-maskot");
+      const footerEl = document.getElementById("win-overlay-footer");
 
-      // Hide right-side columns
-      const rightSide = document.querySelector(".grid.grid-rows-4");
-      if (rightSide) rightSide.style.display = "none";
+      if (!overlay || !maskotEl || !footerEl) {
+        console.warn("win-overlay elements not found in DOM.");
+        return;
+      }
 
-      // Update header (top title)
-      const header = document.querySelector(
-        ".border.border-white.p-4.flex.items-center.justify-left.col-span-2"
+      // 🧼 Remove or hide p5 canvas
+      try {
+        if (
+          window.p5Instance &&
+          typeof window.p5Instance.remove === "function"
+        ) {
+          window.p5Instance.remove();
+          window.p5Instance = null;
+        } else {
+          const canv = document.querySelector("canvas");
+          if (canv) canv.style.display = "none";
+        }
+      } catch (e) {
+        console.warn("Could not remove p5 instance:", e);
+      }
+
+      // 🧩 Clone the mascot BEFORE hiding columns
+      renderMaskotInto(maskotEl);
+
+      // 🫧 Hide the right columns after cloning
+      const rightCols = document.querySelectorAll(
+        "#column3, #column4, #column5, #column7"
       );
-      if (header) {
-        header.style.border = "none";
-        header.className =
-          "p-4 flex items-center justify-center col-span-2 text-center";
-        header.innerHTML = `<h1 class="text-xl md:text-2xl font-bold tracking-widest uppercase">Piratfest 2025</h1>`;
-      }
+      rightCols.forEach((el) => (el.style.display = "none"));
 
-      // Update footer (final address)
-      const footer = document.getElementById("game-footer");
-      if (footer) {
-        footer.style.border = "none";
-        footer.className =
-          "p-4 flex items-center justify-center text-center w-full";
-        const allShown = {
-          street: { value: addressParts.street.value, revealed: true },
-          number: { value: addressParts.number.value, revealed: true },
-          zipcode: { value: addressParts.zipcode.value, revealed: true },
-          time: { value: addressParts.time.value, revealed: true },
-        };
-        const line = buildAddressLine(allShown);
-        footer.innerHTML = `
-          <div class="text-center text-white font-mono whitespace-nowrap overflow-hidden text-ellipsis w-full"
-               style="font-size: clamp(12px, 2vw, 22px); letter-spacing: 2px;">
-            ${line}
-          </div>
-        `;
-      }
+      // Title
+      titleEl.textContent = "PIRATFEST 2025";
 
-      // Get current frozen mascot indices
-      const headIdx = window.maskotState.getIndex("head");
-      const bodyIdx = window.maskotState.getIndex("body");
-      const legsIdx = window.maskotState.getIndex("legs");
-      const feetIdx = window.maskotState.getIndex("feet");
+      // 🏠 Footer info (fully revealed)
+      const line = `${addressParts.street?.value ?? ""} ${
+        addressParts.number?.value ?? ""
+      }, ${addressParts.zipcode?.value ?? ""} — ${
+        addressParts.time?.value ?? ""
+      }`;
+      footerEl.textContent = line;
 
-      // Center mascot in main area
-      const container = document.getElementById("game-container");
-      if (!container) return;
-      renderCompositeMascot(container, { headIdx, bodyIdx, legsIdx, feetIdx });
-    } catch (e) {
-      console.warn("Winning page error:", e);
+      // Show overlay
+      overlay.classList.remove("hidden");
+    } catch (err) {
+      console.error("showWinOverlay error:", err);
     }
   };
 })();
