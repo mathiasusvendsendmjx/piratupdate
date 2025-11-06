@@ -180,7 +180,7 @@ sketch.draw = () => {
     }
 
     const spacing = Math.min(size * 1.5, (sketch.width * 0.85) / cols);
-    const startY = 100,
+    const startY = 50,
       ySpacing = size * 1.2,
       offset = (cols - 1) / 2.0;
 
