@@ -90,7 +90,7 @@ window.p5Instance = new p5((s) => {
     if (gameState === "start") {
       drawCenteredText(
         s,
-        "GAME 3 — WORD HUNT",
+        "OH MY STREET",
         "Find the hidden word by dragging across the letters.",
         "Click to start."
       );

@@ -51,20 +51,20 @@ window.p5Instance = new p5((s) => {
       "CLICK TO START"
     );
     // Dynamisk tekststørrelse efter skærmbredde
-  //   const titleSize = s.width * 0.05; // fx 5% af bredden
-  //   const subtitleSize = s.width * 0.02;
-  //   const instructionSize = s.width * 0.02;
+    //   const titleSize = s.width * 0.05; // fx 5% af bredden
+    //   const subtitleSize = s.width * 0.02;
+    //   const instructionSize = s.width * 0.02;
 
-  //   s.textSize(titleSize);
-  //   s.text(title, s.width / 2, s.height / 2 - titleSize * 1.2);
+    //   s.textSize(titleSize);
+    //   s.text(title, s.width / 2, s.height / 2 - titleSize * 1.2);
 
-  //   s.textSize(subtitleSize);
-  //   s.text(subtitle, s.width / 2, s.height / 2);
+    //   s.textSize(subtitleSize);
+    //   s.text(subtitle, s.width / 2, s.height / 2);
 
-  //   s.textSize(instructionSize);
-  //   s.fill("#E933C9");
-  //   s.text(instruction, s.width / 2, s.height / 2 + titleSize * 1.5);
-   };
+    //   s.textSize(instructionSize);
+    //   s.fill("#E933C9");
+    //   s.text(instruction, s.width / 2, s.height / 2 + titleSize * 1.5);
+  };
 
   s.mousePressed = () => {
     // Gå videre til næste spil

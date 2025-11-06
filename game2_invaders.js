@@ -65,7 +65,7 @@ sketch.draw = () => {
   if (gameState === "START") {
     drawCenteredText(
       sketch,
-      "GAME 2 — INVADERS",
+      "BATTLE OF GERSHAD",
       "Move with ← → | Shoot with SPACE",
       "Click to start."
     );

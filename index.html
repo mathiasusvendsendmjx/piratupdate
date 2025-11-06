@@ -30,10 +30,12 @@
       <!-- 🎮 Outer grid for game -->
       <div class="grid grid-cols-[60%_40%] grid-rows-[auto_1fr] gap-4 h-full">
         <!-- Header -->
-        <div
-          class="p-4 flex items-center justify-center text-lg tracking-wide font-semibold col-span-2"
-        >
-          PIRATFEST 2025
+        <div class="p-4 flex items-center justify-center col-span-2">
+          <img
+            src="assets/banner/title.png"
+            alt="Piratfest Title"
+            class="max-h-20 md:max-h-20 w-full object-contain"
+          />
         </div>
 
         <!-- LEFT side -->
@@ -131,16 +133,17 @@
       id="win-overlay"
       class="hidden fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black text-white p-6"
     >
-      <h1
-        id="win-overlay-title"
-        class="text-2xl md:text-4xl font-bold mb-6 tracking-wide text-center"
-      >
-        PIRATFEST 2025
-      </h1>
+      <div id="win-overlay-title" class="flex items-center justify-center mb-6">
+        <img
+          src="assets/banner/title.png"
+          alt="Piratfest Title"
+          class="w-[70%] max-w-[600px] object-contain"
+        />
+      </div>
 
       <div
         id="win-overlay-maskot"
-        class="relative w-56 md:w-64 h-[22rem] md:h-[26rem] overflow-hidden rounded mb-8 border border-white"
+        class="relative w-56 md:w-64 h-[22rem] md:h-[26rem] overflow-hidden rounded mb-8"
       ></div>
 
       <div

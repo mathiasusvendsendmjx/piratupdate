@@ -57,7 +57,7 @@ window.p5Instance = new p5((sketch) => {
     if (!gameStarted) {
       drawCenteredText(
         sketch,
-        "GAME 1 — ARROW RUSH",
+        "ARROW RUSH",
         "Aim. React. Hit the target.",
         "Click to start."
       );
@@ -88,7 +88,7 @@ window.p5Instance = new p5((sketch) => {
     if (gameOver) {
       sketch.textAlign(sketch.CENTER, sketch.CENTER);
       sketch.textSize(Math.min(sketch.width, sketch.height) * 0.04);
-      sketch.fill(255);
+      sketch.fill("#E933C9");
       sketch.text("Click to Continue", sketch.width / 2, sketch.height - 60);
     }
   };
@@ -127,7 +127,7 @@ window.p5Instance = new p5((sketch) => {
       else if (a.type === "up") a.y += a.speed;
       else if (a.type === "down") a.y -= a.speed;
 
-      drawArrow(a.type, a.x, a.y, 80, sketch.color(0, 0, 100));
+      drawArrow(a.type, a.x, a.y, 80, sketch.color("#E933C9"));
 
       let missed = false;
       if (a.type === "left" && a.x > targetX + GOOD_WINDOW) missed = true;
@@ -214,7 +214,7 @@ window.p5Instance = new p5((sketch) => {
 
   // ---- Helpers ----
   function drawTarget() {
-    const col = sketch.color(0, 0, 100, 25);
+    const col = sketch.color("#E933C9");
     ["left", "right", "up", "down"].forEach((dir) =>
       drawArrow(dir, targetX, targetY, 80, col)
     );

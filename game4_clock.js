@@ -53,7 +53,7 @@ window.p5Instance = new p5((s) => {
     if (gameState === "start") {
       drawCenteredText(
         s,
-        "GAME 4 — TIME LOCK",
+        "PARTY CLOCK",
         "Set the clock to the right time using arrow keys.",
         "Click to start."
       );

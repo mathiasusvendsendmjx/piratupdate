@@ -15,7 +15,7 @@ const gameList = [
 
 // 🧑‍💻 Dev toggle — change to true while developing
 const DEV_MODE = true;
-const DEV_START_INDEX = 4; // 0 = introduction, 1 = arrow, 2 = invaders, 3 = word, 4 = clock
+const DEV_START_INDEX = 0; // 0 = introduction, 1 = arrow, 2 = invaders, 3 = word, 4 = clock
 
 // 🗺️ Address pieces (mystery reveal)
 const addressParts = {
@@ -279,7 +279,7 @@ function renderFooter() {
     textDiv.style.overflow = "hidden";
     textDiv.style.textOverflow = "ellipsis";
     textDiv.style.width = "100%";
-    textDiv.style.fontSize = "clamp(12px, 2vw, 22px)";
+    textDiv.style.fontSize = "clamp(12px, 2vw, 18px)";
     textDiv.style.letterSpacing = "2px";
     footer.appendChild(textDiv);
   }

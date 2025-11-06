@@ -103,8 +103,13 @@
       );
       rightCols.forEach((el) => (el.style.display = "none"));
 
-      // Title
-      titleEl.textContent = "PIRATFEST 2025";
+      titleEl.innerHTML = `
+  <img
+    src="assets/banner/title.png"
+    alt="Piratfest Title"
+    class="w-[80%] max-w-[900px] object-contain"
+  />
+`;
 
       // 🏠 Footer info (fully revealed)
       const line = `${addressParts.street?.value ?? ""} ${
