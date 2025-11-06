@@ -1,3 +1,6 @@
+window.startGameBorderOverlay = window.startGameBorderOverlay || function () {};
+window.stopGameBorderOverlay = window.stopGameBorderOverlay || function () {};
+
 let p5Instance;
 let borderOverlayP5 = null;
 let currentGameIndex = 0;
@@ -12,7 +15,7 @@ const gameList = [
 
 // 🧑‍💻 Dev toggle — change to true while developing
 const DEV_MODE = true;
-const DEV_START_INDEX = 0; // 0 = introduction, 1 = arrow, 2 = invaders, 3 = word, 4 = clock
+const DEV_START_INDEX = 4; // 0 = introduction, 1 = arrow, 2 = invaders, 3 = word, 4 = clock
 
 // 🗺️ Address pieces (mystery reveal)
 const addressParts = {

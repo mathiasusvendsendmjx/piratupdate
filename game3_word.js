@@ -1,3 +1,24 @@
+function drawCenteredText(s, title, subtitle, instruction) {
+  const titleSize = s.width * 0.05; // 5% of width
+  const subtitleSize = s.width * 0.02;
+  const instructionSize = s.width * 0.02;
+
+  s.textAlign(s.CENTER, s.CENTER);
+  s.fill(255);
+
+  // Title
+  s.textSize(titleSize);
+  s.text(title, s.width / 2, s.height / 2 - titleSize * 1.2);
+
+  // Subtitle
+  s.textSize(subtitleSize);
+  s.text(subtitle, s.width / 2, s.height / 2);
+
+  // Instruction (highlighted)
+  s.textSize(instructionSize);
+  s.text(instruction, s.width / 2, s.height / 2 + titleSize * 1);
+}
+
 window.p5Instance = new p5((s) => {
   // --- Game Configuration ---
   const GRID_SIZE = 11;
@@ -62,14 +83,21 @@ window.p5Instance = new p5((s) => {
     }
   }
 
-
   // --- Draw Loop ---
   s.draw = () => {
     s.background(0);
 
     if (gameState === "start") {
-      drawStartScreen();
-    } else if (gameState === "playing") {
+      drawCenteredText(
+        s,
+        "GAME 3 — WORD HUNT",
+        "Find the hidden word by dragging across the letters.",
+        "Click to start."
+      );
+      return;
+    }
+
+    if (gameState === "playing") {
       drawGrid();
       drawSelection();
     } else if (gameState === "won") {
@@ -77,18 +105,9 @@ window.p5Instance = new p5((s) => {
     }
   };
 
-  // --- Start Screen ---
+  // --- Start Screen (replaced by shared helper) ---
   function drawStartScreen() {
-    s.background(0);
-    s.fill(255);
-    s.textSize(s.width / 30);
-    s.text("Click to Start Game", s.width / 2, s.height / 2 +20);
-    s.textSize(s.width / 40);
-    s.text(
-      "Find the hidden word by dragging across the letters!",
-      s.width / 2,
-      s.height / 2 -20
-    );
+    /* Not used anymore — replaced by drawCenteredText */
   }
 
   // --- Grid ---
@@ -124,25 +143,25 @@ window.p5Instance = new p5((s) => {
     const h = cellSize;
 
     s.noFill();
-    s.strokeWeight(cellSize * 0.15);
+    s.strokeWeight(cellSize * 0.02);
     s.stroke(255);
     s.rect(x, y, w, h, cellSize * 0.2);
 
-    s.strokeWeight(2);
+    s.strokeWeight(1);
     s.stroke(255);
     s.rect(x, y, w, h, cellSize * 0.2);
   }
 
   // --- Win Screen ---
-function drawWinScreen() {
-  s.background(0);
-  s.noStroke(); // 🧼 removes any outlines
-  s.fill(255);
-  s.textSize(s.width / 20);
-  s.text(TARGET_WORD, s.width / 2, s.height / 2 - 10);
-  s.textSize(s.width / 40);
-  s.text("Click to Continue", s.width / 2, s.height / 2 + 50);
-}
+  function drawWinScreen() {
+    s.background(0);
+    s.noStroke(); // 🧼 removes any outlines
+    s.fill(255);
+    s.textSize(s.width / 20);
+    s.text(TARGET_WORD, s.width / 2, s.height / 2 - 10);
+    s.textSize(s.width / 40);
+    s.text("Click to Continue", s.width / 2, s.height / 2 + 50);
+  }
 
   // --- Input Handling ---
   s.mousePressed = () => {

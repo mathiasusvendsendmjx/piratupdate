@@ -1,3 +1,24 @@
+function drawCenteredText(s, title, subtitle, instruction) {
+  const titleSize = s.width * 0.05; // 5% of width
+  const subtitleSize = s.width * 0.02;
+  const instructionSize = s.width * 0.02;
+
+  s.textAlign(s.CENTER, s.CENTER);
+  s.fill(255);
+
+  // Title
+  s.textSize(titleSize);
+  s.text(title, s.width / 2, s.height / 2 - titleSize * 1.2);
+
+  // Subtitle
+  s.textSize(subtitleSize);
+  s.text(subtitle, s.width / 2, s.height / 2);
+
+  // Instruction (highlighted)
+  s.textSize(instructionSize);
+  s.text(instruction, s.width / 2, s.height / 2 + titleSize * 1);
+}
+
 window.p5Instance = new p5((sketch) => {
   // 🎚️ Nemme tweaks øverst
   const HERO_SIZE = 90; // pixel størrelse på hero (ændr frit)
@@ -38,13 +59,24 @@ window.p5Instance = new p5((sketch) => {
     player = new Player();
   };
 
-  sketch.draw = () => {
-    sketch.background(0);
-    if (gameState === "START") showStartScreen();
-    else if (gameState === "PLAYING") runGame();
-    else if (gameState === "GAME_OVER") showGameOverScreen();
-    else if (gameState === "WIN") showWinScreen();
-  };
+sketch.draw = () => {
+  sketch.background(0);
+
+  if (gameState === "START") {
+    drawCenteredText(
+      sketch,
+      "GAME 2 — INVADERS",
+      "Move with ← → | Shoot with SPACE",
+      "Click to start."
+    );
+    return;
+  }
+
+  if (gameState === "PLAYING") runGame();
+  else if (gameState === "GAME_OVER") showGameOverScreen();
+  else if (gameState === "WIN") showWinScreen();
+};
+
 
   // 🧨 Kollision
   function invaderHitsPlayer(inv) {
@@ -298,16 +330,16 @@ window.p5Instance = new p5((sketch) => {
   }
 
   // 🎮 Input
-  sketch.mousePressed = () => {
-    if (gameState === "START" || gameState === "GAME_OVER") {
-      score = 0;
-      currentRound = 1;
-      setupRound(1);
-      gameState = "PLAYING";
-    } else if (gameState === "WIN" && typeof gameCompleted === "function") {
-      gameCompleted();
-    }
-  };
+sketch.mousePressed = () => {
+  if (gameState === "START" || gameState === "GAME_OVER") {
+    score = 0;
+    currentRound = 1;
+    setupRound(1);
+    gameState = "PLAYING";
+  } else if (gameState === "WIN" && typeof gameCompleted === "function") {
+    gameCompleted();
+  }
+};
 
   sketch.keyPressed = () => {
     if (gameState === "PLAYING" && sketch.key === " ") player.shoot();
@@ -315,8 +347,8 @@ window.p5Instance = new p5((sketch) => {
 
   function drawUI() {
     sketch.fill(255);
-    sketch.textSize(32);
-    sketch.text(score, sketch.width / 2, 20);
+    sketch.textSize(20);
+    sketch.text("Score: " + score, sketch.width / 2, 80);
   }
 
   function showStartScreen() {

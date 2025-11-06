@@ -1,3 +1,24 @@
+function drawCenteredText(s, title, subtitle, instruction) {
+  const titleSize = s.width * 0.05; // 5% of width
+  const subtitleSize = s.width * 0.02;
+  const instructionSize = s.width * 0.02;
+
+  s.textAlign(s.CENTER, s.CENTER);
+  s.fill(255);
+
+  // Title
+  s.textSize(titleSize);
+  s.text(title, s.width / 2, s.height / 2 - titleSize * 1.2);
+
+  // Subtitle
+  s.textSize(subtitleSize);
+  s.text(subtitle, s.width / 2, s.height / 2);
+
+  // Instruction (highlighted)
+  s.textSize(instructionSize);
+  s.text(instruction, s.width / 2, s.height / 2 + titleSize * 1);
+}
+
 window.p5Instance = new p5((s) => {
   const TARGET_HOUR = 1;
   const TARGET_MINUTE = 45;
@@ -27,9 +48,23 @@ window.p5Instance = new p5((s) => {
   };
 
   s.draw = () => {
-    if (gameState === "start") drawStartScreen();
-    else if (gameState === "playing") drawGame();
-    else if (gameState === "won") drawWinScreen();
+    s.background(0);
+
+    if (gameState === "start") {
+      drawCenteredText(
+        s,
+        "GAME 4 — TIME LOCK",
+        "Set the clock to the right time using arrow keys.",
+        "Click to start."
+      );
+      return;
+    }
+
+    if (gameState === "playing") {
+      drawGame();
+    } else if (gameState === "won") {
+      drawWinScreen();
+    }
   };
 
   function drawGame() {
@@ -37,14 +72,15 @@ window.p5Instance = new p5((s) => {
     handleInput();
     updateLockStates();
 
+    // 🧩 Check for solved condition
     if (isSolved) {
       gameState = "won";
-      return;
+      return; // exit so next frame draws win screen
     }
 
     centerX = s.width / 2;
     centerY = s.height / 2;
-    clockRadius = Math.min(s.width, s.height) * 0.35; // Slightly larger but still responsive
+    clockRadius = Math.min(s.width, s.height) * 0.35;
 
     drawClockFace(centerX, centerY, clockRadius);
     drawHands(centerX, centerY, clockRadius);
@@ -52,26 +88,16 @@ window.p5Instance = new p5((s) => {
 
   function drawStartScreen() {
     s.background(0);
-    s.fill(0, 0, 100);
+    s.fill(255);
     s.noStroke();
 
     const baseTextSize = Math.min(s.width, s.height) * 0.03;
     const titleSize = baseTextSize * 2;
-
-    s.textSize(baseTextSize);
-    s.text(
-      "Arrows Left/Right: Hour | Arrows Up/Down: Minute",
-      s.width / 2,
-      s.height / 2 + baseTextSize * 2
-    );
-
-    s.textSize(titleSize);
-    s.text("Click to Start", s.width / 2, s.height / 2);
   }
 
   function drawWinScreen() {
     s.background(0);
-    s.fill(0, 0, 100);
+    s.fill(255);
     s.noStroke();
 
     const mainTextSize = Math.min(s.width, s.height) * 0.1;
@@ -81,6 +107,7 @@ window.p5Instance = new p5((s) => {
     s.text("22:30", s.width / 2, s.height / 2 - mainTextSize * 0.5);
 
     s.textSize(subTextSize);
+    s.fill(255);
     s.text("Click to continue", s.width / 2, s.height / 2 + mainTextSize * 0.5);
   }
 
@@ -145,22 +172,19 @@ window.p5Instance = new p5((s) => {
     }
   }
 
-
   function drawHands(cx, cy, r) {
     const hourAngle = s.map(currentHourValue, 0, 12, 0, s.TWO_PI) - s.HALF_PI;
     const minuteAngle =
       s.map(currentMinuteValue, 0, 60, 0, s.TWO_PI) - s.HALF_PI;
 
     const hourHandColor = isHourLocked
-      ? s.color(60, 100, 100)
+      ? s.color("#E933C9")
       : s.color(0, 0, 100);
     const minuteHandColor = isMinuteLocked
-      ? s.color(60, 100, 100)
+      ? s.color("#E933C9")
       : s.color(0, 0, 100);
     const centerDotColor =
-      isHourLocked || isMinuteLocked
-        ? s.color(60, 100, 100)
-        : s.color(0, 0, 100);
+      isHourLocked || isMinuteLocked ? s.color("#E933C9") : s.color(0, 0, 100);
 
     s.push();
     s.translate(cx, cy);

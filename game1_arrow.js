@@ -1,3 +1,24 @@
+function drawCenteredText(s, title, subtitle, instruction) {
+  const titleSize = s.width * 0.05; // 5% of width
+  const subtitleSize = s.width * 0.02;
+  const instructionSize = s.width * 0.02;
+
+  s.textAlign(s.CENTER, s.CENTER);
+  s.fill(255);
+
+  // Title
+  s.textSize(titleSize);
+  s.text(title, s.width / 2, s.height / 2 - titleSize * 1.2);
+
+  // Subtitle
+  s.textSize(subtitleSize);
+  s.text(subtitle, s.width / 2, s.height / 2);
+
+  // Instruction (highlighted)
+  s.textSize(instructionSize);
+  s.text(instruction, s.width / 2, s.height / 2 + titleSize * 1);
+}
+
 window.p5Instance = new p5((sketch) => {
   const TOTAL_IMAGES = 10;
   let loadedImages = [];
@@ -34,7 +55,12 @@ window.p5Instance = new p5((sketch) => {
 
     // 🟢 START SCREEN
     if (!gameStarted) {
-      drawStartScreen();
+      drawCenteredText(
+        sketch,
+        "GAME 1 — ARROW RUSH",
+        "Aim. React. Hit the target.",
+        "Click to start."
+      );
       return;
     }
 
@@ -74,19 +100,19 @@ window.p5Instance = new p5((sketch) => {
     const titleSize = Math.min(sketch.width, sketch.height) * 0.07;
     const infoSize = titleSize * 0.6;
 
-    sketch.textSize(titleSize);
-    sketch.text(
-      "Click to Start Game",
-      sketch.width / 2,
-      sketch.height / 2 - 20
-    );
+    // sketch.textSize(titleSize);
+    // sketch.text(
+    //   "Click to Start Game",
+    //   sketch.width / 2,
+    //   sketch.height / 2 - 20
+    // );
 
-    sketch.textSize(infoSize);
-    sketch.text(
-      "Press arrow keys when the arrows overlap the center",
-      sketch.width / 2,
-      sketch.height / 2 + 40
-    );
+    // sketch.textSize(infoSize);
+    // sketch.text(
+    //   "Press arrow keys when the arrows overlap the center",
+    //   sketch.width / 2,
+    //   sketch.height / 2 + 40
+    // );
   }
 
   // ---- Arrows ----

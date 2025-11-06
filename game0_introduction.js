@@ -1,8 +1,28 @@
+function drawCenteredText(s, title, subtitle, instruction) {
+  const titleSize = s.width * 0.05; // 5% of width
+  const subtitleSize = s.width * 0.02;
+  const instructionSize = s.width * 0.02;
+
+  s.textAlign(s.CENTER, s.CENTER);
+  s.fill(255);
+
+  // Title
+  s.textSize(titleSize);
+  s.text(title, s.width / 2, s.height / 2 - titleSize * 1.2);
+
+  // Subtitle
+  s.textSize(subtitleSize);
+  s.text(subtitle, s.width / 2, s.height / 2);
+
+  // Instruction (highlighted)
+  s.textSize(instructionSize);
+  s.text(instruction, s.width / 2, s.height / 2 + titleSize * 1);
+}
+
 // 🏁 game0_introduction.js
 window.p5Instance = new p5((s) => {
   let title = "UNLOCK THE LOCATION";
-  let subtitle =
-    "BEAT ALL GAMES TO REVEAL ADDRESS AND TIME";
+  let subtitle = "BEAT ALL GAMES TO REVEAL ADDRESS AND TIME";
   let instruction = "CLICK TO START";
 
   s.setup = () => {
@@ -24,22 +44,27 @@ window.p5Instance = new p5((s) => {
   s.draw = () => {
     s.background(0);
     s.fill(255);
-
+    drawCenteredText(
+      s,
+      "UNLOCK THE LOCATION",
+      "BEAT ALL GAMES TO REVEAL ADDRESS AND TIME",
+      "CLICK TO START"
+    );
     // Dynamisk tekststørrelse efter skærmbredde
-    const titleSize = s.width * 0.05; // fx 5% af bredden
-    const subtitleSize = s.width * 0.02;
-    const instructionSize = s.width * 0.02;
+  //   const titleSize = s.width * 0.05; // fx 5% af bredden
+  //   const subtitleSize = s.width * 0.02;
+  //   const instructionSize = s.width * 0.02;
 
-    s.textSize(titleSize);
-    s.text(title, s.width / 2, s.height / 2 - titleSize * 1.2);
+  //   s.textSize(titleSize);
+  //   s.text(title, s.width / 2, s.height / 2 - titleSize * 1.2);
 
-    s.textSize(subtitleSize);
-    s.text(subtitle, s.width / 2, s.height / 2);
+  //   s.textSize(subtitleSize);
+  //   s.text(subtitle, s.width / 2, s.height / 2);
 
-    s.textSize(instructionSize);
-    s.fill("#E933C9");
-    s.text(instruction, s.width / 2, s.height / 2 + titleSize * 1.5);
-  };
+  //   s.textSize(instructionSize);
+  //   s.fill("#E933C9");
+  //   s.text(instruction, s.width / 2, s.height / 2 + titleSize * 1.5);
+   };
 
   s.mousePressed = () => {
     // Gå videre til næste spil
